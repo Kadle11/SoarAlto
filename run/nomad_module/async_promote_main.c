@@ -24,7 +24,7 @@
 #include <linux/spinlock.h>
 
 //#include "../linux-5.13-rc6/mm/internal.h"
-#include "/tdata/5.13/linux/mm/internal.h"
+#include "/data/linux/mm/internal.h"
 #include "buffer_ring.h"
 
 #define MAX_TASK 1024

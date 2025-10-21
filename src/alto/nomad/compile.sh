@@ -1,5 +1,6 @@
 #!/bin/bash
 LOGF=log
+NOMAD_PATCH_HOME=$PWD
 cd linux
 git checkout 5.13-rc6
 echo "Checking nomad.patch ..."

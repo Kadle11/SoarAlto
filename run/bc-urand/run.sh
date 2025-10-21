@@ -3,11 +3,14 @@ VMTOUCH="/usr/bin/vmtouch"
 RUNDIR=$(echo "$(dirname "$PWD")")
 RSTDIR=$PWD
 INTERCF="$RUNDIR/interc/ldlib.so"
-MLC="$RUNDIR/mlc"
-PERF="/tdata/linux/tools/perf/perf"
+MLC="/data/mlc/Linux/mlc"
+PERF="/data/linux/tools/perf/perf"
 NOMAD_MOD="$RUNDIR/nomad_module/async_promote.ko"
 COLLOID_DIR="$RUNDIR/colloid/tpp"
-export BPFTRACE="$RUNDIR/bpftrace/bpftrace"
+
+GAPBS_DIR="/data/gapbs"
+# export BPFTRACE="$RUNDIR/bpftrace/bpftrace"
+
 
 declare -A sysmap=([0]="NoTier" [1]="TPP" [2]="NBT" [3]="Nomad" \
   [4]="Colloid" [5]="TPP-ALTO" [6]="NBT-ALTO" [7]="Nomad-ALTO" \
@@ -83,7 +86,7 @@ perf_events="${perf_events}"",OFFCORE_REQUESTS_OUTSTANDING.CYCLES_WITH_DEMAND_DA
 
 load_data() {
   echo "LOAD ..."
-  numactl --membind 1 ${VMTOUCH} -f -t /mnt/sda4/gapbs/benchmark/graphs/urand.sg -m 64G
+  numactl --membind 1 ${VMTOUCH} -f -t $GAPBS_DIR/benchmark/graphs/urand.sg -m 64G
   sleep 3
 }
 
@@ -205,7 +208,7 @@ run() {
   elif [[ $ttype == 10 ]]; then
     prefix="numactl -N0 -m1"
   fi
-  time $prefix $PERF stat -e ${perf_events} -I 1000 -o $perff ${soar_env} /mnt/sda4/gapbs/bc -f /mnt/sda4/gapbs/benchmark/graphs/urand.sg -i4 -n1 > $outf 2>&1 &
+  time $prefix $PERF stat -e ${perf_events} -I 1000 -o $perff ${soar_env} $GAPBS_DIR/bc -f $GAPBS_DIR/benchmark/graphs/urand.sg -i4 -n1 > $outf 2>&1 &
   pid1=$!
   echo "pid1[$pid1]"
 
@@ -231,7 +234,7 @@ run() {
   fi
 
   sleep 10
-  gpid1=$(ps axf | grep /mnt/sda4/gapbs/bc | grep -v grep | awk '{print $1}' | tail -n1)
+  gpid1=$(ps axf | grep $GAPBS_DIR/bc | grep -v grep | awk '{print $1}' | tail -n1)
   sleep 15
   local_free1=$(numastat -p $gpid1 | tail -n1 | awk '{print $2}')
   echo "local_free1 ${local_free1}" | tee $memf
